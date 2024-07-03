@@ -27,6 +27,8 @@ vcztools = "vcztools.cli:vcztools_main"
 dev = [
   "bio2zarr @ git+https://github.com/sgkit-dev/bio2zarr.git",
   "cyvcf2",
+  "hypothesis-vcf @ git+https://github.com/sgkit-dev/hypothesis-vcf.git",
+  "pysam",
   "pytest",
   "pytest-datadir",
 ]

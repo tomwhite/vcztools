@@ -92,6 +92,7 @@ def write_vcf(
     drop_genotypes: bool = False,
     include: Optional[str] = None,
     exclude: Optional[str] = None,
+    path: Optional[str] = None,
 ) -> None:
     """Convert a dataset to a VCF file.
 
@@ -129,7 +130,7 @@ def write_vcf(
         A path or text file object that the output VCF should be written to.
     """
 
-    root = zarr.open(vcz, mode="r")
+    root = zarr.open(vcz, mode="r", path=path)
 
     with open_file_like(output) as output:
         if samples and drop_genotypes:

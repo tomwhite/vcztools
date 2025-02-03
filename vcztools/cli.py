@@ -1,6 +1,7 @@
 import contextlib
 import os
 import sys
+from urllib.parse import urlparse
 
 import click
 
@@ -215,9 +216,23 @@ def view(
     #             samples = "^" + samples
     #         samples += ",".join(line.strip() for line in file.readlines())
 
+    if path.startswith("s3://"):
+        # requires obstore==0.3.0 and zarr with https://github.com/zarr-developers/zarr-python/pull/1661
+        import obstore as obs
+        from zarr.storage.object_store import ObjectStore
+
+        parts = urlparse(path)
+        bucket = parts.netloc
+        store = obs.store.S3Store.from_env(bucket)
+        vcz = ObjectStore(store)
+        subpath = parts.path
+    else:
+        vcz = path
+        subpath = None
+
     with handle_broken_pipe(output):
         vcf_writer.write_vcf(
-            path,
+            vcz,
             output,
             header_only=header_only,
             no_header=no_header,
@@ -229,6 +244,7 @@ def view(
             drop_genotypes=drop_genotypes,
             include=include,
             exclude=exclude,
+            path=subpath,
         )
 
 

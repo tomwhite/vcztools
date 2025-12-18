@@ -15,7 +15,12 @@ def list_samples(vcz_path, output, zarr_backend_storage=None):
     root = open_zarr(vcz_path, mode="r", zarr_backend_storage=zarr_backend_storage)
 
     sample_ids = root["sample_id"][:]
-    print("\n".join(sample_ids), file=output)
+    if "sample_id_mask" not in root:
+        print("\n".join(sample_ids), file=output)
+    else:
+        # don't show masked out samples
+        mask = root["sample_id_mask"][:].astype(bool)
+        print("\n".join(sample_ids[~mask]), file=output)
 
 
 class QueryFormatParser:

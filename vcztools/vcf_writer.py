@@ -97,8 +97,14 @@ def write_vcf(
             samples_selection = np.array([])
         else:
             all_samples = root["sample_id"][:]
+            all_samples_mask = (
+                root["sample_id_mask"][:] if "sample_id_mask" in root else None
+            )
             sample_ids, samples_selection = parse_samples(
-                samples, all_samples, force_samples=force_samples
+                samples,
+                all_samples,
+                all_samples_mask=all_samples_mask,
+                force_samples=force_samples,
             )
 
         # Need to try parsing filter expressions before writing header

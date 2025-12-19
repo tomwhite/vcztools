@@ -1,5 +1,6 @@
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
 import zarr
@@ -49,6 +50,29 @@ def open_zarr(
         elif isinstance(file_or_url, Path):
             path = file_or_url.resolve()  # make absolute
             store = ObjectStore(obs.store.from_url(path.as_uri(), mkdir=True))
+        return zarr.open(store, mode=mode)
+    elif zarr_backend_storage == "icechunk":
+        import icechunk as ic
+
+        if isinstance(file_or_url, str):
+            if "://" not in file_or_url:  # local path
+                storage = ic.Storage.new_local_filesystem(file_or_url)
+            elif file_or_url.startswith("s3://"):
+                url_parsed = urlparse(file_or_url)
+                storage = ic.s3_storage(
+                    bucket=url_parsed.netloc,
+                    prefix=url_parsed.path.lstrip("/"),
+                    from_env=True,
+                )
+            else:
+                raise ValueError(f"Unsupported URL for icechunk: {file_or_url}")
+        elif isinstance(file_or_url, Path):
+            path = file_or_url.resolve()  # make absolute
+            storage = ic.Storage.new_local_filesystem(str(path))
+
+        repo = ic.Repository.open(storage)
+        session = repo.readonly_session("main")
+        store = session.store
         return zarr.open(store, mode=mode)
     else:
         raise ValueError(

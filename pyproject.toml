@@ -50,6 +50,7 @@ vcztools = "vcztools.cli:vcztools_main"
 dev = [
   "bio2zarr",
   "cyvcf2",
+  "obstore",
   "pytest",
   "pytest-cov",
   "msprime",

@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 
-from vcztools.utils import _as_fixed_length_unicode, search
+from vcztools.utils import _as_fixed_length_unicode, numpy_v2, search
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,10 @@ def parse_samples(
         sample_ids = np.array(samples.split(","))
 
     if np.all(sample_ids == np.array("")):
-        sample_ids = np.empty((0,), dtype=np.dtypes.StringDType())
+        if numpy_v2():
+            sample_ids = np.empty((0,), dtype=np.dtypes.StringDType())
+        else:
+            sample_ids = np.empty((0,))
 
     unknown_samples = np.setdiff1d(sample_ids, all_samples)
     if len(unknown_samples) > 0:

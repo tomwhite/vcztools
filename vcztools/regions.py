@@ -146,20 +146,8 @@ def parse_targets(
     )
 
 
-def regions_to_chunk_indexes(
-    regions: GenomicRanges | None,
-    targets: GenomicRanges | None,
-    complement: bool,
-    regions_index: Any,
-):
-    """Return chunks indexes that overlap the given regions or targets.
-
-    If both regions and targets are specified then only regions are used
-    to find overlapping chunks (since targets are used later to refine).
-
-    If only targets are specified then they are used to find overlapping chunks,
-    taking into account the complement flag.
-    """
+def regions_to_chunk_indexes(regions: GenomicRanges, regions_index: Any):
+    """Return chunks indexes that overlap the given regions."""
 
     # Create GenomicRanges for chunks using the region index.
     # For regions use max end position, for targets just end position
@@ -176,12 +164,7 @@ def regions_to_chunk_indexes(
         max_end_position if regions is not None else end_position,
     )
 
-    if regions is not None:
-        overlap = chunk_regions.overlaps(regions)
-    elif complement:
-        overlap = chunk_regions.subtract(targets)
-    else:
-        overlap = chunk_regions.overlaps(targets)
+    overlap = chunk_regions.overlaps(regions)
     chunk_indexes = chunk_index[overlap]
     chunk_indexes = np.unique(chunk_indexes)
     return chunk_indexes
